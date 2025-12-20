@@ -1,40 +1,109 @@
-
 <p align="center">
-  <img src="/img/logo-interfaces.png" alt="Logo de interfaces">
+  <img src="img/logo-interfaces.png" alt="Real Time Phishing Scan Logo">
 </p>
 
-## Información (2011)
-![Información del proyecto 2011](img/about2011.png)
-A continuación se describe la información presente en la imagen about2011.png: resumen del proyecto y objetivos iniciales, enfoque en la detección de intentos de phishing durante la navegación, alertas al usuario y opciones para bloquear o permitir, junto con la gestión de sitios seguros y reporte de incidentes.
+# Real Time Phishing Scan - Add-on for Firefox
 
-## Detecciòn en tiempo real
-![Detección de phishing en tiempo real](img/Plugin_Detected_Phishing_2011.fw.png)
-La extensión muestra un aviso en tiempo real con:
-- Dominio analizado y URL sospechosa.
-- Nivel de riesgo y tipo de amenaza.
-- Enlace para cargar el sitio original y acciones recomendadas (permitir, bloquear, ver detalles).
+## What is Real Time Phishing Scan? - RTPS
+
+Real Time Phishing Scan es una extensión para Firefox que analiza el contenido de una página web y evalúa si es un posible sitio falso diseñado para robar contraseñas.
+
+### Funciones de RTPS:
+
+- Verifica el URL referer
+- Analiza los nombres de host
+- Detecta campos de contraseña en formularios
+- Examina formularios sospechosos
+- Compara con los títulos de sitios más populares
+
+> *"RTPS is a safe surfing tool for your web browser"*
+
+**Archivo:** rtps.xpi
+**MD5:** A2b4f96CA953D838E22190A91BB0D8D5
+
+---
+
+## Detección en tiempo real
+
+<p align="center">
+  <img src="img/Plugin_Detected_Phishing_2011.fw.png" alt="Detección de Phishing en tiempo real">
+</p>
+
+La extensión muestra una barra de notificación en la parte superior del navegador que indica:
+
+- **Página actual:** La URL del sitio que está visitando
+- **Referida:** El sitio de origen que lo redirigió
+- **Notificación:** Estado del sitio (Phishing site)
+
+Cuando se detecta un sitio sospechoso, RTPS muestra una advertencia: *"This site comes from a security site, and had request passwords information, probably is a fake site to get private data, check the URL."*
+
+En la esquina inferior derecha aparece una alerta visual de **"Warning! Phishing site"** para alertar al usuario del peligro potencial.
+
+---
 
 ## Detalles de la extensión
-![Detalles de la detección](img/Plugin_Detected_Phishing_Details_2011.fw.png)
-Se puede cargar información del sitio original, mostrando un screen del Home y ofreciendo las opciones de adicionar como seguro o sitio inseguro.
 
-## Opciones de menu
-![Acciones disponibles](img/Plugin_Detected_Phishing_Actions_2011.fw.png)
-Opciones principales del menú:
-- Ver sitio original: abre la página legítima para comparación.
-- Ver detalles: muestra el análisis técnico y los indicadores de riesgo.
-- Marcar como seguro: añade el dominio a la lista de sitios confiables.
-- Marcar como inseguro: etiqueta el sitio y bloquea el acceso futuro.
-- Reportar phishing: envía un reporte del incidente.
-- Sitios seguros: abre la gestión de la lista blanca.
-- Configuración: ajusta preferencias y comportamiento de la extensión.
-- Ayuda: acceso a documentación y soporte.
+<p align="center">
+  <img src="img/Plugin_Detected_Phishing_Details_2011.fw.png" alt="Detalles de la extensión">
+</p>
+
+La extensión permite cargar información del sitio original, mostrando una vista previa (screenshot) del Home del sitio legítimo. Esto ayuda al usuario a comparar visualmente si el sitio que está visitando corresponde realmente al sitio oficial.
+
+Además, ofrece las siguientes opciones de acción:
+- **This is safe:** Marcar el sitio como seguro si el usuario lo conoce y confía en él
+- **This is unsafe:** Confirmar que el sitio es inseguro y potencialmente peligroso
+
+---
+
+## Opciones de menú
+
+<p align="center">
+  <img src="img/Plugin_Detected_Phishing_Actions_2011.fw.png" alt="Opciones de menú">
+</p>
+
+El menú **Sites Configuration** ofrece las siguientes opciones:
+
+- **Config sites:** Abre la ventana de configuración de sitios donde puede administrar sus listas de sitios seguros e inseguros
+- **Add this hostname to:** Permite agregar el hostname actual a una categoría específica (sitios seguros o inseguros)
+- **Report this hostname to RTPS like:** Reportar el sitio actual al sistema RTPS para ayudar a mejorar la base de datos de sitios maliciosos
+- **Close:** Cerrar el menú de opciones
+
+---
 
 ## Configuración de sitios
-![Gestión de sitios seguros](img/Plugin_Detected_Phishing_Actions_SafeSites_2011.fw.png)
-La imagen muestra la sección “Sitios seguros”: listado de dominios confiables, opciones para agregar/editar/eliminar entradas, controles para guardar cambios y aplicar reglas por dominio o subdominio.
+
+<p align="center">
+  <img src="img/Plugin_Detected_Phishing_Actions_SafeSites_2011.fw.png" alt="Configuración de sitios">
+</p>
+
+La ventana de **Site Configuration** permite administrar los sitios en tres pestañas:
+
+- **Safe sites:** Sitios marcados como seguros
+- **Unsafe sites:** Sitios marcados como inseguros
+- **History:** Historial de sitios visitados
+
+Los sitios seguros se pueden organizar por categorías:
+- **Banks** - Bancos
+- **Forums** - Foros
+- **Online Banks** - Banca en línea
+- **Blogs** - Blogs
+- **Email Clients** - Clientes de correo
+- **Networking** - Redes
+- **Social Networks** - Redes sociales
+- **Others** - Otros
+
+> *"Manage your secure sites, add the most popular sites, trusted sites and sites known by you"*
+
+---
 
 ## Información adicional
-https://www.youtube.com/@realtimephishingscan
 
-La extensión inició en el año 2010 como un proyecto de seguridad informática y se pueden observar sus primeros lanzamientos en el canal de YouTube.
+La extensión Real Time Phishing Scan inició en el año **2010** como un proyecto de seguridad informática enfocado en proteger a los usuarios de sitios de phishing mientras navegan por internet.
+
+Puedes observar los primeros lanzamientos y demostraciones de la extensión en el canal oficial de YouTube:
+
+**YouTube:** [https://www.youtube.com/@realtimephishingscan](https://www.youtube.com/@realtimephishingscan)
+
+---
+
+*Copyright 2010 - rtps.onfraga.com*
