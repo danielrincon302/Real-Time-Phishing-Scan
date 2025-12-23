@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "Real Time Phishing Scan",
+  "version": "2.0.0",
+  "description": "Detector of fake sites to retrieve passwords - Protects you from phishing attacks in real-time",
+  "author": "Cesar Daniel Rincon Brito",
+  "homepage_url": "https://github.com/cesarincon/Real-Time-Phishing-Scan",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{C745F424-A11B-11DF-A496-943EE0D72085}",
+      "strict_min_version": "109.0"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "notifications",
+    "webNavigation",
+    "webRequest"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    },
+    "default_title": "Real Time Phishing Scan",
+    "default_popup": "popup/popup.html"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

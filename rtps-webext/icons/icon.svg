@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+    <linearGradient id="checkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4CAF50"/>
+      <stop offset="100%" style="stop-color:#2E7D32"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield background -->
+  <path d="M64 8 L112 24 L112 56 C112 88 88 112 64 120 C40 112 16 88 16 56 L16 24 Z"
+        fill="url(#shieldGrad)"
+        stroke="#0D47A1"
+        stroke-width="2"/>
+
+  <!-- Inner shield highlight -->
+  <path d="M64 16 L104 30 L104 56 C104 84 84 104 64 112 C44 104 24 84 24 56 L24 30 Z"
+        fill="none"
+        stroke="rgba(255,255,255,0.3)"
+        stroke-width="2"/>
+
+  <!-- Checkmark -->
+  <path d="M40 64 L56 80 L88 48"
+        fill="none"
+        stroke="url(#checkGrad)"
+        stroke-width="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Shine effect -->
+  <ellipse cx="48" cy="40" rx="12" ry="8" fill="rgba(255,255,255,0.2)"/>
+</svg>
