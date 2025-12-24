@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Time Phishing Scan</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img src="../icons/icon-32.png" alt="RTPS Logo" class="logo">
+      <h1>Real Time Phishing Scan</h1>
+    </header>
+
+    <section class="current-site" id="current-site-section">
+      <h2>Current Site</h2>
+      <div class="site-info">
+        <span class="site-host" id="current-host">Loading...</span>
+        <span class="site-status" id="current-status"></span>
+      </div>
+      <div class="site-actions" id="site-actions">
+        <!-- Actions will be inserted here -->
+      </div>
+    </section>
+
+    <section class="tabs">
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="detected">Detected</button>
+        <button class="tab-btn" data-tab="safe">Safe Sites</button>
+        <button class="tab-btn" data-tab="unsafe">Unsafe Sites</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+      </nav>
+
+      <div class="tab-content active" id="detected-tab">
+        <div class="list-header">
+          <span>Recently detected phishing attempts</span>
+          <button class="btn-small" id="clear-detected">Clear All</button>
+        </div>
+        <ul class="host-list" id="detected-list">
+          <li class="empty-message">No phishing attempts detected</li>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="safe-tab">
+        <div class="list-header">
+          <span>Trusted sites</span>
+          <div class="add-host">
+            <input type="text" id="add-safe-input" placeholder="Enter domain (e.g., example.com)">
+            <button class="btn-small" id="add-safe-btn">Add</button>
+          </div>
+        </div>
+        <ul class="host-list" id="safe-list">
+          <li class="empty-message">No safe sites added</li>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="unsafe-tab">
+        <div class="list-header">
+          <span>Blocked sites</span>
+          <div class="add-host">
+            <input type="text" id="add-unsafe-input" placeholder="Enter domain (e.g., example.com)">
+            <button class="btn-small" id="add-unsafe-btn">Add</button>
+          </div>
+        </div>
+        <ul class="host-list" id="unsafe-list">
+          <li class="empty-message">No unsafe sites added</li>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="settings-tab">
+        <div class="settings-group">
+          <label class="setting-item">
+            <input type="checkbox" id="setting-enabled" checked>
+            <span>Enable phishing detection</span>
+          </label>
+          <label class="setting-item">
+            <input type="checkbox" id="setting-notifications" checked>
+            <span>Show notifications</span>
+          </label>
+        </div>
+        <div class="settings-info">
+          <p>Version 2.0.0</p>
+          <p>Created by Cesar Daniel Rincon Brito</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>Protecting you from phishing attacks</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -205,7 +205,23 @@ browser.webNavigation.onCommitted.addListener((details) => {
         console.log(`RTPS: No cross-domain trigger - no different source domain found`);
       }
     } else {
-      console.log(`RTPS: Skipping cross-domain check - URL typed directly`);
+      // User typed URL directly - clear all navigation history for this tab
+      // This is a fresh navigation initiated by the user, not from a link
+      console.log(`RTPS: URL typed directly - clearing navigation history for tab ${tabId}`);
+      tabNavigationHistory.set(tabId, [{
+        host: normalizedHost,
+        url: url,
+        timestamp: Date.now(),
+        transitionType,
+        transitionQualifiers: transitionQualifiers || [],
+        isFromLink: false,
+        isTypedDirectly: true,
+        isRedirect: false
+      }]);
+      tabCrossDomainContext.delete(tabId);
+      tabSourceMap.delete(tabId);
+      tabRefererMap.delete(tabId);
+      updateBadge(tabId, 'default');
     }
 
   } catch (error) {
