@@ -1,0 +1,164 @@
+{
+  "extDescription": {
+    "message": "Detector de sitios falsos para robar contraseñas - Te protege de ataques de phishing en tiempo real"
+  },
+  "currentSite": {
+    "message": "Sitio Actual"
+  },
+  "statusSafe": {
+    "message": "Seguro"
+  },
+  "statusUnsafe": {
+    "message": "Peligroso"
+  },
+  "statusUnknown": {
+    "message": "Desconocido"
+  },
+  "markAsSafe": {
+    "message": "Marcar como Seguro"
+  },
+  "markAsUnsafe": {
+    "message": "Marcar como Peligroso"
+  },
+  "tabDetected": {
+    "message": "Detectados"
+  },
+  "tabSafeSites": {
+    "message": "Sitios Seguros"
+  },
+  "tabUnsafeSites": {
+    "message": "Sitios Peligrosos"
+  },
+  "tabSettings": {
+    "message": "Configuración"
+  },
+  "noDetections": {
+    "message": "No se han detectado intentos de phishing"
+  },
+  "noSafeSites": {
+    "message": "No hay sitios seguros personalizados"
+  },
+  "noUnsafeSites": {
+    "message": "No hay sitios marcados como peligrosos"
+  },
+  "addSite": {
+    "message": "Agregar sitio..."
+  },
+  "add": {
+    "message": "Agregar"
+  },
+  "delete": {
+    "message": "Eliminar"
+  },
+  "trustThisSite": {
+    "message": "Confiar en este sitio"
+  },
+  "from": {
+    "message": "Desde"
+  },
+  "enablePhishingDetection": {
+    "message": "Activar detección de phishing"
+  },
+  "showNotifications": {
+    "message": "Mostrar notificaciones"
+  },
+  "language": {
+    "message": "Idioma"
+  },
+  "version": {
+    "message": "Versión"
+  },
+  "createdBy": {
+    "message": "Creado por"
+  },
+  "protectingYou": {
+    "message": "Protegiéndote del phishing"
+  },
+  "phishingWarning": {
+    "message": "¡ADVERTENCIA DE PHISHING!"
+  },
+  "phishingDetected": {
+    "message": "¡PHISHING DETECTADO!"
+  },
+  "dangerKnownPhishing": {
+    "message": "¡PELIGRO: Sitio de Phishing Conocido!"
+  },
+  "warningUnverifiedSite": {
+    "message": "Advertencia: Sitio No Verificado"
+  },
+  "doNotEnterPassword": {
+    "message": "Este sitio ha sido marcado como peligroso. ¡NO ingreses tu contraseña!"
+  },
+  "clickedLinkFrom": {
+    "message": "Hiciste clic en un enlace desde \"$SOURCE$\" (confiable) hacia este sitio desconocido que ahora está pidiendo tu contraseña. ¡Este es un patrón común de phishing!",
+    "placeholders": {
+      "source": {
+        "content": "$1"
+      }
+    }
+  },
+  "suspiciousNavigation": {
+    "message": "Patrón de navegación sospechoso detectado. ¡Verifica que este sitio sea legítimo!"
+  },
+  "unverifiedSiteMessage": {
+    "message": "Este sitio está pidiendo una contraseña pero no está en tu lista de confianza. Verifica que sea legítimo antes de ingresar credenciales."
+  },
+  "navigationPath": {
+    "message": "Ruta de navegación:"
+  },
+  "iUnderstandRisk": {
+    "message": "Entiendo el riesgo"
+  },
+  "dismiss": {
+    "message": "Descartar"
+  },
+  "siteAddedToTrusted": {
+    "message": "Sitio agregado a la lista de confianza"
+  },
+  "confirmDismissWarning": {
+    "message": "¿Estás seguro de que deseas descartar esta advertencia?\n\nEste sitio ha sido identificado como potencialmente peligroso."
+  },
+  "rtpsWarningFocus": {
+    "message": "ADVERTENCIA RTPS: ¡Este parece ser un sitio de phishing!\n\nNO ingreses tu contraseña.\n\nSi crees que este es un sitio legítimo, puedes agregarlo a tu lista de confianza en la extensión RTPS."
+  },
+  "notifDangerTitle": {
+    "message": "¡PELIGRO: Sitio de Phishing Conocido!"
+  },
+  "notifDangerMessage": {
+    "message": "Navegaste desde $SOURCE$ hacia $DEST$ que está marcado como PELIGROSO.\n¡NO ingreses ninguna credencial!",
+    "placeholders": {
+      "source": {
+        "content": "$1"
+      },
+      "dest": {
+        "content": "$2"
+      }
+    }
+  },
+  "notifPhishingTitle": {
+    "message": "¡ADVERTENCIA DE PHISHING!"
+  },
+  "notifPhishingMessage": {
+    "message": "$METHOD$ desde $SOURCE$ y ahora $DEST$ está pidiendo tu contraseña.\n¡Verifica que sea un sitio legítimo!",
+    "placeholders": {
+      "method": {
+        "content": "$1"
+      },
+      "source": {
+        "content": "$2"
+      },
+      "dest": {
+        "content": "$3"
+      }
+    }
+  },
+  "langEnglish": {
+    "message": "Inglés"
+  },
+  "langSpanish": {
+    "message": "Español"
+  },
+  "langPortuguese": {
+    "message": "Portugués"
+  }
+}

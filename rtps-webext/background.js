@@ -66,8 +66,52 @@ const DEFAULT_SAFE_HOSTS = [
 const DEFAULT_SETTINGS = {
   enabled: true,
   showNotifications: true,
-  redirectLevels: 4  // Maximum redirect levels to track
+  redirectLevels: 4,  // Maximum redirect levels to track
+  language: 'en'
 };
+
+// Cache for translations
+let cachedTranslations = {};
+let cachedLanguage = 'en';
+
+// Load translations for background script
+async function loadBackgroundTranslations() {
+  try {
+    const settings = await getSettings();
+    cachedLanguage = settings.language || 'en';
+
+    const url = browser.runtime.getURL(`_locales/${cachedLanguage}/messages.json`);
+    const response = await fetch(url);
+    cachedTranslations = await response.json();
+  } catch (error) {
+    console.error('RTPS: Error loading translations:', error);
+    // Fallback to English
+    try {
+      const url = browser.runtime.getURL('_locales/en/messages.json');
+      const response = await fetch(url);
+      cachedTranslations = await response.json();
+    } catch (e) {
+      console.error('RTPS: Error loading fallback translations:', e);
+    }
+  }
+}
+
+function getBackgroundMessage(key, substitutions = []) {
+  const message = cachedTranslations[key];
+  if (!message) return key;
+
+  let text = message.message;
+
+  // Handle substitutions ($1, $2, etc.)
+  if (substitutions.length > 0 && message.placeholders) {
+    Object.keys(message.placeholders).forEach((placeholder, index) => {
+      const regex = new RegExp(`\\$${placeholder.toUpperCase()}\\$`, 'g');
+      text = text.replace(regex, substitutions[index] || '');
+    });
+  }
+
+  return text;
+}
 
 // Navigation history per tab - tracks the chain of domains visited
 // Structure: { tabId: [{ host, url, timestamp }, ...] }
@@ -102,7 +146,13 @@ browser.runtime.onInstalled.addListener(async (details) => {
     await browser.storage.local.set({ [STORAGE_KEYS.SAFE_HOSTS]: mergedHosts });
     console.log('RTPS: Extension updated, safe hosts merged');
   }
+
+  // Load translations after install/update
+  await loadBackgroundTranslations();
 });
+
+// Load translations on startup
+loadBackgroundTranslations();
 
 // Track navigation for each tab
 browser.webNavigation.onCommitted.addListener((details) => {
@@ -267,8 +317,8 @@ async function checkCrossDomainNavigation(tabId, sourceHost, destinationHost, is
       // Destination is known phishing/unsafe site - HIGH ALERT immediately
       await updateBadge(tabId, 'danger');
       await showNotification(
-        'DANGER: Known Phishing Site!',
-        `You navigated from ${sourceHost} to ${destinationHost} which is marked as UNSAFE!\nDO NOT enter any credentials!`
+        getBackgroundMessage('notifDangerTitle'),
+        getBackgroundMessage('notifDangerMessage', [sourceHost, destinationHost])
       );
       return;
     }
@@ -469,8 +519,10 @@ async function handlePasswordFieldDetected(data, tab) {
   if (hostStatus.isUnsafe) {
     // Host is known unsafe - always alert
     await updateBadge(tab.id, 'danger');
-    await showNotification('DANGER: Known Phishing Site!',
-      `This site (${normalizedHost}) has been marked as dangerous. DO NOT enter your password!`);
+    await showNotification(
+      getBackgroundMessage('notifDangerTitle'),
+      getBackgroundMessage('doNotEnterPassword')
+    );
     return { status: 'unsafe', host: normalizedHost, alert: true, highlightFields: true };
   }
 
@@ -512,8 +564,8 @@ async function handlePasswordFieldDetected(data, tab) {
 
     await updateBadge(tab.id, 'danger');
     await showNotification(
-      'PHISHING WARNING!',
-      `You ${crossDomainContext.navigationMethod} from ${crossDomainContext.sourceHost} and now ${normalizedHost} is asking for your password.\nVerify this is a legitimate site!`
+      getBackgroundMessage('notifPhishingTitle'),
+      getBackgroundMessage('notifPhishingMessage', [crossDomainContext.navigationMethod, crossDomainContext.sourceHost, normalizedHost])
     );
 
     // Clear context after alerting
@@ -554,9 +606,8 @@ async function handlePasswordFieldDetected(data, tab) {
 
     await updateBadge(tab.id, 'danger');
     await showNotification(
-      'PHISHING DETECTED!',
-      `You came from ${phishingRisk.sourceHost} and now ${normalizedHost} is asking for your password.\n` +
-      `This is a common phishing pattern. Verify this is a legitimate site!`
+      getBackgroundMessage('phishingDetected'),
+      getBackgroundMessage('notifPhishingMessage', ['navigated', phishingRisk.sourceHost, normalizedHost])
     );
 
     return {
@@ -822,6 +873,12 @@ async function updateSettings(newSettings) {
   const currentSettings = await getSettings();
   const mergedSettings = { ...currentSettings, ...newSettings };
   await browser.storage.local.set({ [STORAGE_KEYS.SETTINGS]: mergedSettings });
+
+  // Reload translations if language changed
+  if (newSettings.language && newSettings.language !== cachedLanguage) {
+    await loadBackgroundTranslations();
+  }
+
   return { success: true, settings: mergedSettings };
 }
 

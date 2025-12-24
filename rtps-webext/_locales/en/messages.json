@@ -1,0 +1,164 @@
+{
+  "extDescription": {
+    "message": "Detector of fake sites to retrieve passwords - Protects you from phishing attacks in real-time"
+  },
+  "currentSite": {
+    "message": "Current Site"
+  },
+  "statusSafe": {
+    "message": "Safe"
+  },
+  "statusUnsafe": {
+    "message": "Unsafe"
+  },
+  "statusUnknown": {
+    "message": "Unknown"
+  },
+  "markAsSafe": {
+    "message": "Mark as Safe"
+  },
+  "markAsUnsafe": {
+    "message": "Mark as Unsafe"
+  },
+  "tabDetected": {
+    "message": "Detected"
+  },
+  "tabSafeSites": {
+    "message": "Safe Sites"
+  },
+  "tabUnsafeSites": {
+    "message": "Unsafe Sites"
+  },
+  "tabSettings": {
+    "message": "Settings"
+  },
+  "noDetections": {
+    "message": "No phishing attempts detected yet"
+  },
+  "noSafeSites": {
+    "message": "No custom safe sites added"
+  },
+  "noUnsafeSites": {
+    "message": "No unsafe sites marked"
+  },
+  "addSite": {
+    "message": "Add site..."
+  },
+  "add": {
+    "message": "Add"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "trustThisSite": {
+    "message": "Trust this site"
+  },
+  "from": {
+    "message": "From"
+  },
+  "enablePhishingDetection": {
+    "message": "Enable phishing detection"
+  },
+  "showNotifications": {
+    "message": "Show notifications"
+  },
+  "language": {
+    "message": "Language"
+  },
+  "version": {
+    "message": "Version"
+  },
+  "createdBy": {
+    "message": "Created by"
+  },
+  "protectingYou": {
+    "message": "Protecting you from phishing"
+  },
+  "phishingWarning": {
+    "message": "PHISHING WARNING!"
+  },
+  "phishingDetected": {
+    "message": "PHISHING DETECTED!"
+  },
+  "dangerKnownPhishing": {
+    "message": "DANGER: Known Phishing Site!"
+  },
+  "warningUnverifiedSite": {
+    "message": "Warning: Unverified Site"
+  },
+  "doNotEnterPassword": {
+    "message": "This site has been marked as dangerous. DO NOT enter your password!"
+  },
+  "clickedLinkFrom": {
+    "message": "You clicked a link from \"$SOURCE$\" (trusted) to this unknown site which is now asking for your password. This is a common phishing pattern!",
+    "placeholders": {
+      "source": {
+        "content": "$1"
+      }
+    }
+  },
+  "suspiciousNavigation": {
+    "message": "Suspicious navigation pattern detected. Verify this is a legitimate site!"
+  },
+  "unverifiedSiteMessage": {
+    "message": "This site is asking for a password but is not in your trusted list. Verify this is legitimate before entering credentials."
+  },
+  "navigationPath": {
+    "message": "Navigation path:"
+  },
+  "iUnderstandRisk": {
+    "message": "I understand the risk"
+  },
+  "dismiss": {
+    "message": "Dismiss"
+  },
+  "siteAddedToTrusted": {
+    "message": "Site added to trusted list"
+  },
+  "confirmDismissWarning": {
+    "message": "Are you sure you want to dismiss this warning?\n\nThis site has been identified as potentially dangerous."
+  },
+  "rtpsWarningFocus": {
+    "message": "RTPS WARNING: This appears to be a phishing site!\n\nDO NOT enter your password.\n\nIf you believe this is a legitimate site, you can add it to your trusted list in the RTPS extension."
+  },
+  "notifDangerTitle": {
+    "message": "DANGER: Known Phishing Site!"
+  },
+  "notifDangerMessage": {
+    "message": "You navigated from $SOURCE$ to $DEST$ which is marked as UNSAFE!\nDO NOT enter any credentials!",
+    "placeholders": {
+      "source": {
+        "content": "$1"
+      },
+      "dest": {
+        "content": "$2"
+      }
+    }
+  },
+  "notifPhishingTitle": {
+    "message": "PHISHING WARNING!"
+  },
+  "notifPhishingMessage": {
+    "message": "You $METHOD$ from $SOURCE$ and now $DEST$ is asking for your password.\nVerify this is a legitimate site!",
+    "placeholders": {
+      "method": {
+        "content": "$1"
+      },
+      "source": {
+        "content": "$2"
+      },
+      "dest": {
+        "content": "$3"
+      }
+    }
+  },
+  "langEnglish": {
+    "message": "English"
+  },
+  "langSpanish": {
+    "message": "Spanish"
+  },
+  "langPortuguese": {
+    "message": "Portuguese"
+  }
+}

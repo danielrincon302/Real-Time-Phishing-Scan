@@ -12,8 +12,99 @@
     warningInjected: false,
     passwordFieldsFound: [],
     currentStatus: null,
-    scanTimeout: null
+    scanTimeout: null,
+    translations: {},
+    currentLanguage: 'en'
   };
+
+  // Load translations
+  async function loadTranslations() {
+    try {
+      const settings = await browser.runtime.sendMessage({ action: 'GET_SETTINGS' });
+      RTPS.currentLanguage = settings.language || 'en';
+      console.log('RTPS: Loading translations for language:', RTPS.currentLanguage);
+
+      const url = browser.runtime.getURL(`_locales/${RTPS.currentLanguage}/messages.json`);
+      console.log('RTPS: Fetching translations from:', url);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      RTPS.translations = await response.json();
+      console.log('RTPS: Translations loaded successfully, keys:', Object.keys(RTPS.translations).length);
+    } catch (error) {
+      console.error('RTPS: Error loading translations:', error);
+      // Fallback to English
+      try {
+        console.log('RTPS: Trying fallback to English...');
+        const url = browser.runtime.getURL('_locales/en/messages.json');
+        const response = await fetch(url);
+        if (response.ok) {
+          RTPS.translations = await response.json();
+          console.log('RTPS: Fallback translations loaded');
+        }
+      } catch (e) {
+        console.error('RTPS: Error loading fallback translations:', e);
+        // Set hardcoded fallback translations
+        RTPS.translations = getHardcodedFallback();
+      }
+    }
+  }
+
+  // Hardcoded fallback translations in case files can't be loaded
+  function getHardcodedFallback() {
+    return {
+      phishingWarning: { message: 'PHISHING WARNING!' },
+      phishingDetected: { message: 'PHISHING DETECTED!' },
+      dangerKnownPhishing: { message: 'DANGER: Known Phishing Site!' },
+      warningUnverifiedSite: { message: 'Warning: Unverified Site' },
+      doNotEnterPassword: { message: 'This site has been marked as dangerous. DO NOT enter your password!' },
+      clickedLinkFrom: {
+        message: 'You clicked a link from "$SOURCE$" (trusted) to this unknown site which is now asking for your password. This is a common phishing pattern!',
+        placeholders: { source: { content: '$1' } }
+      },
+      suspiciousNavigation: { message: 'Suspicious navigation pattern detected. Verify this is a legitimate site!' },
+      unverifiedSiteMessage: { message: 'This site is asking for a password but is not in your trusted list. Verify this is legitimate before entering credentials.' },
+      navigationPath: { message: 'Navigation path:' },
+      trustThisSite: { message: 'I trust this site' },
+      iUnderstandRisk: { message: 'I understand the risk' },
+      dismiss: { message: 'Dismiss' },
+      siteAddedToTrusted: { message: 'Site added to trusted list' },
+      confirmDismissWarning: { message: 'Are you sure you want to dismiss this warning?\n\nThis site has been identified as potentially dangerous.' },
+      rtpsWarningFocus: { message: 'RTPS WARNING: This appears to be a phishing site!\n\nDO NOT enter your password.\n\nIf you believe this is a legitimate site, you can add it to your trusted list in the RTPS extension.' }
+    };
+  }
+
+  function getMessage(key, substitutions = []) {
+    const message = RTPS.translations[key];
+    if (!message) {
+      console.warn('RTPS: Missing translation for key:', key);
+      // Return from hardcoded fallback if available
+      const fallback = getHardcodedFallback()[key];
+      if (fallback) {
+        return processMessage(fallback, substitutions);
+      }
+      return key;
+    }
+
+    return processMessage(message, substitutions);
+  }
+
+  function processMessage(message, substitutions) {
+    let text = message.message;
+
+    // Handle substitutions ($1, $2, etc.)
+    if (substitutions.length > 0 && message.placeholders) {
+      Object.keys(message.placeholders).forEach((placeholder, index) => {
+        const regex = new RegExp(`\\$${placeholder.toUpperCase()}\\$`, 'g');
+        text = text.replace(regex, substitutions[index] || '');
+      });
+    }
+
+    return text;
+  }
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
@@ -22,7 +113,10 @@
     init();
   }
 
-  function init() {
+  async function init() {
+    // Load translations first
+    await loadTranslations();
+
     // Initial scan for password fields
     scanForPasswordFields();
 
@@ -190,18 +284,17 @@
     let title, message;
 
     if (response.status === 'unsafe') {
-      title = 'DANGER: Known Phishing Site!';
-      message = 'This site has been marked as dangerous. DO NOT enter your password!';
+      title = getMessage('dangerKnownPhishing');
+      message = getMessage('doNotEnterPassword');
     } else if (isPhishing && response.sourceHost) {
-      title = 'PHISHING WARNING!';
-      const navMethod = response.navigationMethod || 'clicked a link';
-      message = `You ${navMethod} from "${response.sourceHost}" (trusted) to this unknown site which is now asking for your password. This is a common phishing pattern!`;
+      title = getMessage('phishingWarning');
+      message = getMessage('clickedLinkFrom', [response.sourceHost]);
     } else if (isPhishing) {
-      title = 'PHISHING DETECTED!';
-      message = response.reason || 'Suspicious navigation pattern detected. Verify this is a legitimate site!';
+      title = getMessage('phishingDetected');
+      message = response.reason || getMessage('suspiciousNavigation');
     } else {
-      title = 'Warning: Unverified Site';
-      message = 'This site is asking for a password but is not in your trusted list. Verify this is legitimate before entering credentials.';
+      title = getMessage('warningUnverifiedSite');
+      message = getMessage('unverifiedSiteMessage');
     }
 
     // Get extension icon URL
@@ -223,14 +316,14 @@
           <p>${escapeHtml(message)}</p>
           ${response.redirectChain && response.redirectChain.length > 0 ? `
             <div class="rtps-redirect-chain">
-              <span>Navigation path: ${response.redirectChain.map(h => escapeHtml(h)).join(' → ')} →</span>
+              <span>${getMessage('navigationPath')} ${response.redirectChain.map(h => escapeHtml(h)).join(' → ')} →</span>
               <strong>${escapeHtml(response.host)}</strong>
             </div>
           ` : ''}
         </div>
         <div class="rtps-banner-actions">
-          ${!isDanger ? '<button id="rtps-trust-btn">I trust this site</button>' : ''}
-          <button id="rtps-dismiss-btn">${isDanger ? 'I understand the risk' : 'Dismiss'}</button>
+          ${!isDanger ? `<button id="rtps-trust-btn">${getMessage('trustThisSite')}</button>` : ''}
+          <button id="rtps-dismiss-btn">${isDanger ? getMessage('iUnderstandRisk') : getMessage('dismiss')}</button>
         </div>
       </div>
     `;
@@ -306,7 +399,8 @@
       }
       .rtps-banner-text p {
         margin: 0 0 8px 0;
-        opacity: 0.95;
+        color: white !important;
+        opacity: 1;
         font-size: 13px;
         line-height: 1.4;
       }
@@ -385,7 +479,7 @@
       field.addEventListener('focus', () => {
         if (isDanger && !field.dataset.rtpsWarned) {
           field.dataset.rtpsWarned = 'true';
-          alert('RTPS WARNING: This appears to be a phishing site!\n\nDO NOT enter your password.\n\nIf you believe this is a legitimate site, you can add it to your trusted list in the RTPS extension.');
+          alert(getMessage('rtpsWarningFocus'));
         }
       }, { once: true });
     });
@@ -403,7 +497,7 @@
           });
           removeWarning(passwordFields);
           // Show confirmation
-          showToast('Site added to trusted list');
+          showToast(getMessage('siteAddedToTrusted'));
         } catch (error) {
           console.error('RTPS: Error adding safe host', error);
         }
@@ -414,7 +508,7 @@
       dismissBtn.addEventListener('click', () => {
         if (isDanger) {
           // For dangerous sites, require confirmation
-          if (confirm('Are you sure you want to dismiss this warning?\n\nThis site has been identified as potentially dangerous.')) {
+          if (confirm(getMessage('confirmDismissWarning'))) {
             removeWarning(passwordFields);
           }
         } else {

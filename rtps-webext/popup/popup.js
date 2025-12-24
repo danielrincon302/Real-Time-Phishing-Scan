@@ -4,12 +4,107 @@ document.addEventListener('DOMContentLoaded', init);
 
 let currentHost = null;
 let currentHostStatus = null;
+let translations = {};
+let currentLanguage = 'en';
 
 async function init() {
+  await loadLanguage();
   setupTabNavigation();
   await loadCurrentSite();
   await loadAllData();
   setupEventListeners();
+}
+
+// Internationalization functions
+async function loadLanguage() {
+  try {
+    // Get saved language from settings
+    const settings = await browser.runtime.sendMessage({ action: 'GET_SETTINGS' });
+    currentLanguage = settings.language || 'en';
+
+    // Load translations
+    await loadTranslations(currentLanguage);
+
+    // Set the language selector value
+    const langSelect = document.getElementById('setting-language');
+    if (langSelect) {
+      langSelect.value = currentLanguage;
+    }
+
+    // Apply translations to the DOM
+    applyTranslations();
+  } catch (error) {
+    console.error('Error loading language:', error);
+  }
+}
+
+async function loadTranslations(lang) {
+  try {
+    const url = browser.runtime.getURL(`_locales/${lang}/messages.json`);
+    const response = await fetch(url);
+    translations = await response.json();
+  } catch (error) {
+    console.error('Error loading translations:', error);
+    // Fallback to English if loading fails
+    if (lang !== 'en') {
+      await loadTranslations('en');
+    }
+  }
+}
+
+function getMessage(key, substitutions = []) {
+  const message = translations[key];
+  if (!message) return key;
+
+  let text = message.message;
+
+  // Handle substitutions ($1, $2, etc.)
+  if (substitutions.length > 0 && message.placeholders) {
+    Object.keys(message.placeholders).forEach((placeholder, index) => {
+      const regex = new RegExp(`\\$${placeholder.toUpperCase()}\\$`, 'g');
+      text = text.replace(regex, substitutions[index] || '');
+    });
+  }
+
+  return text;
+}
+
+function applyTranslations() {
+  // Apply translations to elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const translated = getMessage(key);
+    if (translated && translated !== key) {
+      el.textContent = translated;
+    }
+  });
+
+  // Apply translations to placeholder attributes
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const translated = getMessage(key);
+    if (translated && translated !== key) {
+      el.placeholder = translated;
+    }
+  });
+}
+
+async function changeLanguage(lang) {
+  currentLanguage = lang;
+
+  // Save to settings
+  await browser.runtime.sendMessage({
+    action: 'UPDATE_SETTINGS',
+    data: { settings: { language: lang } }
+  });
+
+  // Reload translations and apply
+  await loadTranslations(lang);
+  applyTranslations();
+
+  // Reload dynamic content
+  await loadAllData();
+  await loadCurrentSite();
 }
 
 function setupTabNavigation() {
@@ -67,23 +162,23 @@ function updateCurrentSiteStatus(status) {
   const actionsElement = document.getElementById('site-actions');
 
   if (status.isSafe) {
-    statusElement.textContent = 'Trusted';
+    statusElement.textContent = getMessage('statusSafe');
     statusElement.className = 'site-status safe';
     actionsElement.innerHTML = `
-      <button class="btn-remove" id="remove-current">Remove from trusted</button>
+      <button class="btn-remove" id="remove-current">${getMessage('delete')}</button>
     `;
   } else if (status.isUnsafe) {
-    statusElement.textContent = 'Blocked';
+    statusElement.textContent = getMessage('statusUnsafe');
     statusElement.className = 'site-status unsafe';
     actionsElement.innerHTML = `
-      <button class="btn-remove" id="remove-current">Remove from blocked</button>
+      <button class="btn-remove" id="remove-current">${getMessage('delete')}</button>
     `;
   } else {
-    statusElement.textContent = 'Unknown';
+    statusElement.textContent = getMessage('statusUnknown');
     statusElement.className = 'site-status unknown';
     actionsElement.innerHTML = `
-      <button class="btn-safe" id="mark-safe">Mark as Safe</button>
-      <button class="btn-unsafe" id="mark-unsafe">Mark as Unsafe</button>
+      <button class="btn-safe" id="mark-safe">${getMessage('markAsSafe')}</button>
+      <button class="btn-unsafe" id="mark-unsafe">${getMessage('markAsUnsafe')}</button>
     `;
   }
 
@@ -149,7 +244,7 @@ async function loadDetectedList() {
     const list = document.getElementById('detected-list');
 
     if (!detected || detected.length === 0) {
-      list.innerHTML = '<li class="empty-message">No phishing attempts detected</li>';
+      list.innerHTML = `<li class="empty-message">${getMessage('noDetections')}</li>`;
       return;
     }
 
@@ -158,15 +253,15 @@ async function loadDetectedList() {
         <div class="host-item-info">
           <span class="host-item-name">${escapeHtml(entry.host)}</span>
           <span class="host-item-meta">${formatDate(entry.timestamp)}</span>
-          ${entry.referrer ? `<span class="host-item-referrer">From: ${escapeHtml(entry.referrer)}</span>` : ''}
+          ${entry.referrer ? `<span class="host-item-referrer">${getMessage('from')}: ${escapeHtml(entry.referrer)}</span>` : ''}
           ${entry.redirectChain && entry.redirectChain.length > 0 ? `
-            <span class="host-item-chain">Path: ${entry.redirectChain.map(h => escapeHtml(h)).join(' → ')}</span>
+            <span class="host-item-chain">${getMessage('navigationPath')} ${entry.redirectChain.map(h => escapeHtml(h)).join(' → ')}</span>
           ` : ''}
           ${entry.reason ? `<span class="host-item-reason">${escapeHtml(entry.reason)}</span>` : ''}
         </div>
         <div class="host-item-actions">
-          <button class="btn-icon trust" data-host="${escapeHtml(entry.host)}" title="Trust this site">&#10003;</button>
-          <button class="btn-icon delete" data-url="${escapeHtml(entry.url)}" title="Remove">&#10005;</button>
+          <button class="btn-icon trust" data-host="${escapeHtml(entry.host)}" title="${getMessage('trustThisSite')}">&#10003;</button>
+          <button class="btn-icon delete" data-url="${escapeHtml(entry.url)}" title="${getMessage('delete')}">&#10005;</button>
         </div>
       </li>
     `).join('');
@@ -194,7 +289,7 @@ async function loadHostLists() {
     // Safe hosts
     const safeList = document.getElementById('safe-list');
     if (hosts.safeHosts.length === 0) {
-      safeList.innerHTML = '<li class="empty-message">No safe sites added</li>';
+      safeList.innerHTML = `<li class="empty-message">${getMessage('noSafeSites')}</li>`;
     } else {
       safeList.innerHTML = hosts.safeHosts.map(host => `
         <li>
@@ -202,7 +297,7 @@ async function loadHostLists() {
             <span class="host-item-name">${escapeHtml(host)}</span>
           </div>
           <div class="host-item-actions">
-            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="Remove">&#10005;</button>
+            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="${getMessage('delete')}">&#10005;</button>
           </div>
         </li>
       `).join('');
@@ -222,7 +317,7 @@ async function loadHostLists() {
     // Unsafe hosts
     const unsafeList = document.getElementById('unsafe-list');
     if (hosts.unsafeHosts.length === 0) {
-      unsafeList.innerHTML = '<li class="empty-message">No unsafe sites added</li>';
+      unsafeList.innerHTML = `<li class="empty-message">${getMessage('noUnsafeSites')}</li>`;
     } else {
       unsafeList.innerHTML = hosts.unsafeHosts.map(host => `
         <li>
@@ -230,7 +325,7 @@ async function loadHostLists() {
             <span class="host-item-name">${escapeHtml(host)}</span>
           </div>
           <div class="host-item-actions">
-            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="Remove">&#10005;</button>
+            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="${getMessage('delete')}">&#10005;</button>
           </div>
         </li>
       `).join('');
@@ -257,6 +352,12 @@ async function loadSettings() {
 
     document.getElementById('setting-enabled').checked = settings.enabled;
     document.getElementById('setting-notifications').checked = settings.showNotifications;
+
+    // Set language selector
+    const langSelect = document.getElementById('setting-language');
+    if (langSelect && settings.language) {
+      langSelect.value = settings.language;
+    }
   } catch (error) {
     console.error('Error loading settings:', error);
   }
@@ -327,6 +428,11 @@ function setupEventListeners() {
       action: 'UPDATE_SETTINGS',
       data: { settings: { showNotifications: e.target.checked } }
     });
+  });
+
+  // Language selector
+  document.getElementById('setting-language').addEventListener('change', async (e) => {
+    await changeLanguage(e.target.value);
   });
 }
 
