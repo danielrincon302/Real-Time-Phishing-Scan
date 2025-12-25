@@ -1,5 +1,5 @@
 
-# Real Time Phishing Scan - Add-on for Firefox - V 2.0.0 - 2025
+# ![RTPS](rtps-webext/icons/icon-32.png) Real Time Phishing Scan - Add-on for Firefox - V 2.0.0 - 2025
 
 ## What is Real Time Phishing Scan? - RTPS
 
@@ -163,7 +163,7 @@ La página de información de la extensión en Firefox muestra:
 ---
 ---
 
-# Real Time Phishing Scan - Add-on for Firefox - V 1.0.0 - 2011
+# ![RTPS](rtps-webext/icons/icon-32.png) Real Time Phishing Scan - Add-on for Firefox - V 1.0.0 - 2011
 
 <p align="center">
   <img src="img/logo-interfaces.png" alt="Real Time Phishing Scan Logo">
