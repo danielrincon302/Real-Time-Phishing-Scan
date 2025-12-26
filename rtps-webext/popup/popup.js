@@ -136,7 +136,7 @@ async function loadCurrentSite() {
     if (url.protocol === 'about:' || url.protocol === 'chrome:' || url.protocol === 'moz-extension:') {
       document.getElementById('current-host').textContent = 'Browser page';
       document.getElementById('current-status').textContent = 'N/A';
-      document.getElementById('site-actions').innerHTML = '';
+      document.getElementById('site-actions').textContent = '';
       return;
     }
 
@@ -161,25 +161,38 @@ function updateCurrentSiteStatus(status) {
   const statusElement = document.getElementById('current-status');
   const actionsElement = document.getElementById('site-actions');
 
+  // Clear previous actions
+  actionsElement.textContent = '';
+
   if (status.isSafe) {
     statusElement.textContent = getMessage('statusSafe');
     statusElement.className = 'site-status safe';
-    actionsElement.innerHTML = `
-      <button class="btn-remove" id="remove-current">${getMessage('delete')}</button>
-    `;
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove';
+    removeBtn.id = 'remove-current';
+    removeBtn.textContent = getMessage('delete');
+    actionsElement.appendChild(removeBtn);
   } else if (status.isUnsafe) {
     statusElement.textContent = getMessage('statusUnsafe');
     statusElement.className = 'site-status unsafe';
-    actionsElement.innerHTML = `
-      <button class="btn-remove" id="remove-current">${getMessage('delete')}</button>
-    `;
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove';
+    removeBtn.id = 'remove-current';
+    removeBtn.textContent = getMessage('delete');
+    actionsElement.appendChild(removeBtn);
   } else {
     statusElement.textContent = getMessage('statusUnknown');
     statusElement.className = 'site-status unknown';
-    actionsElement.innerHTML = `
-      <button class="btn-safe" id="mark-safe">${getMessage('markAsSafe')}</button>
-      <button class="btn-unsafe" id="mark-unsafe">${getMessage('markAsUnsafe')}</button>
-    `;
+    const markSafeBtn = document.createElement('button');
+    markSafeBtn.className = 'btn-safe';
+    markSafeBtn.id = 'mark-safe';
+    markSafeBtn.textContent = getMessage('markAsSafe');
+    const markUnsafeBtn = document.createElement('button');
+    markUnsafeBtn.className = 'btn-unsafe';
+    markUnsafeBtn.id = 'mark-unsafe';
+    markUnsafeBtn.textContent = getMessage('markAsUnsafe');
+    actionsElement.appendChild(markSafeBtn);
+    actionsElement.appendChild(markUnsafeBtn);
   }
 
   // Add event listeners for new buttons
@@ -243,39 +256,83 @@ async function loadDetectedList() {
     const detected = await browser.runtime.sendMessage({ action: 'GET_DETECTED_PHISHING' });
     const list = document.getElementById('detected-list');
 
+    // Clear list
+    list.textContent = '';
+
     if (!detected || detected.length === 0) {
-      list.innerHTML = `<li class="empty-message">${getMessage('noDetections')}</li>`;
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'empty-message';
+      emptyLi.textContent = getMessage('noDetections');
+      list.appendChild(emptyLi);
       return;
     }
 
-    list.innerHTML = detected.map(entry => `
-      <li class="detected-item">
-        <div class="host-item-info">
-          <span class="host-item-name">${escapeHtml(entry.host)}</span>
-          <span class="host-item-meta">${formatDate(entry.timestamp)}</span>
-          ${entry.referrer ? `<span class="host-item-referrer">${getMessage('from')}: ${escapeHtml(entry.referrer)}</span>` : ''}
-          ${entry.redirectChain && entry.redirectChain.length > 0 ? `
-            <span class="host-item-chain">${getMessage('navigationPath')} ${entry.redirectChain.map(h => escapeHtml(h)).join(' → ')}</span>
-          ` : ''}
-          ${entry.reason ? `<span class="host-item-reason">${escapeHtml(entry.reason)}</span>` : ''}
-        </div>
-        <div class="host-item-actions">
-          <button class="btn-icon trust" data-host="${escapeHtml(entry.host)}" title="${getMessage('trustThisSite')}">&#10003;</button>
-          <button class="btn-icon delete" data-url="${escapeHtml(entry.url)}" title="${getMessage('delete')}">&#10005;</button>
-        </div>
-      </li>
-    `).join('');
+    detected.forEach(entry => {
+      const li = document.createElement('li');
+      li.className = 'detected-item';
 
-    // Add event listeners
-    list.querySelectorAll('.btn-icon.trust').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'host-item-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'host-item-name';
+      nameSpan.textContent = entry.host;
+      infoDiv.appendChild(nameSpan);
+
+      const metaSpan = document.createElement('span');
+      metaSpan.className = 'host-item-meta';
+      metaSpan.textContent = formatDate(entry.timestamp);
+      infoDiv.appendChild(metaSpan);
+
+      if (entry.referrer) {
+        const referrerSpan = document.createElement('span');
+        referrerSpan.className = 'host-item-referrer';
+        referrerSpan.textContent = getMessage('from') + ': ' + entry.referrer;
+        infoDiv.appendChild(referrerSpan);
+      }
+
+      if (entry.redirectChain && entry.redirectChain.length > 0) {
+        const chainSpan = document.createElement('span');
+        chainSpan.className = 'host-item-chain';
+        chainSpan.textContent = getMessage('navigationPath') + ' ' + entry.redirectChain.join(' → ');
+        infoDiv.appendChild(chainSpan);
+      }
+
+      if (entry.reason) {
+        const reasonSpan = document.createElement('span');
+        reasonSpan.className = 'host-item-reason';
+        reasonSpan.textContent = entry.reason;
+        infoDiv.appendChild(reasonSpan);
+      }
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'host-item-actions';
+
+      const trustBtn = document.createElement('button');
+      trustBtn.className = 'btn-icon trust';
+      trustBtn.dataset.host = entry.host;
+      trustBtn.title = getMessage('trustThisSite');
+      trustBtn.textContent = '✓';
+      trustBtn.addEventListener('click', async () => {
         await browser.runtime.sendMessage({
           action: 'ADD_SAFE_HOST',
-          data: { host: btn.dataset.host }
+          data: { host: entry.host }
         });
         await loadAllData();
         await loadCurrentSite();
       });
+      actionsDiv.appendChild(trustBtn);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-icon delete';
+      deleteBtn.dataset.url = entry.url;
+      deleteBtn.title = getMessage('delete');
+      deleteBtn.textContent = '✗';
+      actionsDiv.appendChild(deleteBtn);
+
+      li.appendChild(infoDiv);
+      li.appendChild(actionsDiv);
+      list.appendChild(li);
     });
   } catch (error) {
     console.error('Error loading detected list:', error);
@@ -286,59 +343,77 @@ async function loadHostLists() {
   try {
     const hosts = await browser.runtime.sendMessage({ action: 'GET_ALL_HOSTS' });
 
+    // Helper to create host list item
+    function createHostListItem(host, onDelete) {
+      const li = document.createElement('li');
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'host-item-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'host-item-name';
+      nameSpan.textContent = host;
+      infoDiv.appendChild(nameSpan);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'host-item-actions';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-icon delete';
+      deleteBtn.dataset.host = host;
+      deleteBtn.title = getMessage('delete');
+      deleteBtn.textContent = '✗';
+      deleteBtn.addEventListener('click', onDelete);
+      actionsDiv.appendChild(deleteBtn);
+
+      li.appendChild(infoDiv);
+      li.appendChild(actionsDiv);
+      return li;
+    }
+
     // Safe hosts
     const safeList = document.getElementById('safe-list');
-    if (hosts.safeHosts.length === 0) {
-      safeList.innerHTML = `<li class="empty-message">${getMessage('noSafeSites')}</li>`;
-    } else {
-      safeList.innerHTML = hosts.safeHosts.map(host => `
-        <li>
-          <div class="host-item-info">
-            <span class="host-item-name">${escapeHtml(host)}</span>
-          </div>
-          <div class="host-item-actions">
-            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="${getMessage('delete')}">&#10005;</button>
-          </div>
-        </li>
-      `).join('');
+    safeList.textContent = '';
 
-      safeList.querySelectorAll('.btn-icon.delete').forEach(btn => {
-        btn.addEventListener('click', async () => {
+    if (hosts.safeHosts.length === 0) {
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'empty-message';
+      emptyLi.textContent = getMessage('noSafeSites');
+      safeList.appendChild(emptyLi);
+    } else {
+      hosts.safeHosts.forEach(host => {
+        const li = createHostListItem(host, async () => {
           await browser.runtime.sendMessage({
             action: 'REMOVE_HOST',
-            data: { host: btn.dataset.host }
+            data: { host }
           });
           await loadHostLists();
           await loadCurrentSite();
         });
+        safeList.appendChild(li);
       });
     }
 
     // Unsafe hosts
     const unsafeList = document.getElementById('unsafe-list');
-    if (hosts.unsafeHosts.length === 0) {
-      unsafeList.innerHTML = `<li class="empty-message">${getMessage('noUnsafeSites')}</li>`;
-    } else {
-      unsafeList.innerHTML = hosts.unsafeHosts.map(host => `
-        <li>
-          <div class="host-item-info">
-            <span class="host-item-name">${escapeHtml(host)}</span>
-          </div>
-          <div class="host-item-actions">
-            <button class="btn-icon delete" data-host="${escapeHtml(host)}" title="${getMessage('delete')}">&#10005;</button>
-          </div>
-        </li>
-      `).join('');
+    unsafeList.textContent = '';
 
-      unsafeList.querySelectorAll('.btn-icon.delete').forEach(btn => {
-        btn.addEventListener('click', async () => {
+    if (hosts.unsafeHosts.length === 0) {
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'empty-message';
+      emptyLi.textContent = getMessage('noUnsafeSites');
+      unsafeList.appendChild(emptyLi);
+    } else {
+      hosts.unsafeHosts.forEach(host => {
+        const li = createHostListItem(host, async () => {
           await browser.runtime.sendMessage({
             action: 'REMOVE_HOST',
-            data: { host: btn.dataset.host }
+            data: { host }
           });
           await loadHostLists();
           await loadCurrentSite();
         });
+        unsafeList.appendChild(li);
       });
     }
   } catch (error) {
@@ -437,12 +512,6 @@ function setupEventListeners() {
 }
 
 // Helper functions
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
 function formatDate(timestamp) {
   const date = new Date(timestamp);
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

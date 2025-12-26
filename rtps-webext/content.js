@@ -300,33 +300,75 @@
     // Get extension icon URL
     const logoUrl = browser.runtime.getURL('icons/full.png');
 
-    // Create warning banner
+    // Create warning banner using safe DOM methods
     const banner = document.createElement('div');
     banner.id = 'rtps-warning-banner';
-    banner.innerHTML = `
-      <div class="rtps-banner-content">
-        <div class="rtps-banner-logo">
-          <img src="${logoUrl}" alt="RTPS Logo" />
-        </div>
-        <div class="rtps-banner-text">
-          <div class="rtps-banner-title">
-            <strong>${title}</strong>
-            <span class="rtps-warning-icon">⚠</span>
-          </div>
-          <p>${escapeHtml(message)}</p>
-          ${response.redirectChain && response.redirectChain.length > 0 ? `
-            <div class="rtps-redirect-chain">
-              <span>${getMessage('navigationPath')} ${response.redirectChain.map(h => escapeHtml(h)).join(' → ')} →</span>
-              <strong>${escapeHtml(response.host)}</strong>
-            </div>
-          ` : ''}
-        </div>
-        <div class="rtps-banner-actions">
-          ${!isDanger ? `<button id="rtps-trust-btn">${getMessage('trustThisSite')}</button>` : ''}
-          <button id="rtps-dismiss-btn">${isDanger ? getMessage('iUnderstandRisk') : getMessage('dismiss')}</button>
-        </div>
-      </div>
-    `;
+
+    const bannerContent = document.createElement('div');
+    bannerContent.className = 'rtps-banner-content';
+
+    // Logo section
+    const logoDiv = document.createElement('div');
+    logoDiv.className = 'rtps-banner-logo';
+    const logoImg = document.createElement('img');
+    logoImg.src = logoUrl;
+    logoImg.alt = 'RTPS Logo';
+    logoDiv.appendChild(logoImg);
+
+    // Text section
+    const textDiv = document.createElement('div');
+    textDiv.className = 'rtps-banner-text';
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'rtps-banner-title';
+    const titleStrong = document.createElement('strong');
+    titleStrong.textContent = title;
+    const warningIcon = document.createElement('span');
+    warningIcon.className = 'rtps-warning-icon';
+    warningIcon.textContent = '⚠';
+    titleDiv.appendChild(titleStrong);
+    titleDiv.appendChild(warningIcon);
+
+    const messagePara = document.createElement('p');
+    messagePara.textContent = message;
+
+    textDiv.appendChild(titleDiv);
+    textDiv.appendChild(messagePara);
+
+    // Redirect chain (if exists)
+    if (response.redirectChain && response.redirectChain.length > 0) {
+      const chainDiv = document.createElement('div');
+      chainDiv.className = 'rtps-redirect-chain';
+      const chainSpan = document.createElement('span');
+      chainSpan.textContent = getMessage('navigationPath') + ' ' + response.redirectChain.join(' → ') + ' →';
+      const chainHost = document.createElement('strong');
+      chainHost.textContent = response.host;
+      chainDiv.appendChild(chainSpan);
+      chainDiv.appendChild(chainHost);
+      textDiv.appendChild(chainDiv);
+    }
+
+    // Actions section
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'rtps-banner-actions';
+
+    if (!isDanger) {
+      const trustButton = document.createElement('button');
+      trustButton.id = 'rtps-trust-btn';
+      trustButton.textContent = getMessage('trustThisSite');
+      actionsDiv.appendChild(trustButton);
+    }
+
+    const dismissButton = document.createElement('button');
+    dismissButton.id = 'rtps-dismiss-btn';
+    dismissButton.textContent = isDanger ? getMessage('iUnderstandRisk') : getMessage('dismiss');
+    actionsDiv.appendChild(dismissButton);
+
+    // Assemble banner
+    bannerContent.appendChild(logoDiv);
+    bannerContent.appendChild(textDiv);
+    bannerContent.appendChild(actionsDiv);
+    banner.appendChild(bannerContent);
 
     // Inject styles
     const style = document.createElement('style');
@@ -596,12 +638,6 @@
     }
 
     return true;
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 
 })();
