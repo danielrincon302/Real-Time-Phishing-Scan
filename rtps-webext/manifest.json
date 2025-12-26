@@ -12,9 +12,7 @@
       "id": "{C745F424-A11B-11DF-A496-943EE0D72085}",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": [],
-        "techdata_collected": false,
-        "interactiondata_collected": false
+        "required": []
       }
     }
   },
