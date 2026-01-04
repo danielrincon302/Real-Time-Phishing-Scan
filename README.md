@@ -18,7 +18,7 @@ Real Time Phishing Scan es una extensión para Firefox que analiza el contenido 
 **Archivo:** rtps.xpi
 **Versión:** 2.0.0
 **Autor:** Cesar Daniel Rincon Brito
-
+**Extensión oficial:** [https://addons.mozilla.org/en-US/firefox/addon/real-time-phishing-scan/](https://addons.mozilla.org/en-US/firefox/addon/real-time-phishing-scan/)
 ---
 
 ## Detección en tiempo real - Notificación DOM
